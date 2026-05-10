@@ -77,30 +77,20 @@
 						bind:value={searchValue}
 					/>
 				</button>
-
-				<!-- <div class="flex w-1/4 place-content-center items-center">
-					<button
-						class="bg-mlb-orange/90 text-mlb-white flex place-content-center items-center rounded-3xl px-4 py-2 font-bold hover:brightness-90"
-						onclick={() => {
-							isAddLockerActive = true;
-						}}
-					>
-						<img src={add} class="max-w-8" alt="Add" />
-						<img src={locker} class="max-w-8" alt="Mailbox" />
-					</button>
-				</div> -->
 			</div>
 		</div>
 
 		<!-- Header for the Logs -->
 		<div class="mb-4 flex w-full flex-row pr-4">
-			<div class="w-1/4 content-center text-center text-lg font-bold">Parcel Tracking Number</div>
+			<div class="w-1/5 content-center text-center text-lg font-bold">Parcel Tracking Number</div>
 
-			<div class="w-1/4 content-center text-center text-lg font-bold">Recipient ID</div>
+			<div class="w-1/5 content-center text-center text-lg font-bold">Recipient ID</div>
 
-			<div class="w-1/4 content-center text-center text-lg font-bold">Most Recent Activity</div>
+			<div class="w-1/5 content-center text-center text-lg font-bold">Most Recent Activity</div>
 
-			<div class="w-1/4 content-center text-center text-lg font-bold">Date of Activity</div>
+			<div class="w-1/5 content-center text-center text-lg font-bold">Date of Activity</div>
+
+			<div class="w-1/5 content-center text-center text-lg font-bold">Parcel Details</div>
 		</div>
 
 		<!-- Content (Actual Logs) -->
