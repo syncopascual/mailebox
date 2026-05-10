@@ -61,7 +61,7 @@
 
 	// resubmit tracking number (updates url search parameters to match new submission)
 	function resubmitTrackingNumber() {
-		const params = new URLSearchParams(page.url.searchParams.toString())
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		params.set('tracking_num', tracking_num);
 		goto(`/tracking/?${params.toString()}`, { keepFocus: true, noScroll: true });
 	}
@@ -69,7 +69,7 @@
 	// Initialize the action hook
 	const client = useConvexClient();
 
-	For QR scanning (auth)
+	// For QR scanning (auth)
 	let otpStatus = $state('');
 	let isLoading = $state(false);
 	let currentScan = $state(null);
@@ -156,7 +156,8 @@
 		<div class="mt-4 flex w-full flex-col p-3">
 			{#if userParcel.data == undefined}
 				<p class="mb-4 text-center">
-					There is no userParcel with tracking number <span class="font-bold">{tracking_copy}</span>.
+					There is no userParcel with tracking number <span class="font-bold">{tracking_copy}</span
+					>.
 				</p>
 				<div class="m-auto flex flex-col place-content-center">
 					<p class="w-full py-1 text-left text-lg font-extrabold">Input Tracking Number Again:</p>

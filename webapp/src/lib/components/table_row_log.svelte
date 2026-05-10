@@ -41,7 +41,9 @@
 	let isDetailsActive = $state(false);
 </script>
 
-<div class="bg-mlb-white border-mlb-white hover:border-mlb-orange mb-2 flex h-1/12 w-full shrink-0 flex-row rounded-2xl border-2 hover:shadow-sm">
+<div
+	class="bg-mlb-white border-mlb-white hover:border-mlb-orange mb-2 flex h-1/12 w-full shrink-0 flex-row rounded-2xl border-2 hover:shadow-sm"
+>
 	<div class="w-1/5 content-center text-center font-bold">
 		{tracking_id}
 	</div>
@@ -60,9 +62,12 @@
 	</div>
 
 	<div class="w-1/5 content-center text-center">
-		<button class="bg-mlb-orange text-mlb-white px-3 py-1 rounded-lg font-bold drop-shadow-sm enabled:hover:brightness-90 disabled:bg-mlb-gray"
-				onclick={() => {isDetailsActive = true;}}
-		> 
+		<button
+			class="bg-mlb-orange text-mlb-white disabled:bg-mlb-gray rounded-lg px-3 py-1 font-bold drop-shadow-sm enabled:hover:brightness-90"
+			onclick={() => {
+				isDetailsActive = true;
+			}}
+		>
 			View Details
 		</button>
 	</div>

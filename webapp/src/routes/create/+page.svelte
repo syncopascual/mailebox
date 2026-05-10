@@ -51,15 +51,15 @@
 		<p class="pt-8 text-lg font-extrabold">Welcome!</p>
 
 		<form onsubmit={handlePasswordSubmit} class="flex w-full flex-col p-1 md:p-5">
-    		<label for="name" class="mb-1 text-left"> Name </label>
-    		<input
-    			type="text"
-    			bind:value={name}
-    			id="name"
-    			class="bg-mlb-gray/50 text-mlb-black hover:border-mlb-orange/60 mb-4 rounded-3xl border-1 border-white px-4 py-1.5"
-    			placeholder="LeBron James"
-    			required
-    		/>
+			<label for="name" class="mb-1 text-left"> Name </label>
+			<input
+				type="text"
+				bind:value={name}
+				id="name"
+				class="bg-mlb-gray/50 text-mlb-black hover:border-mlb-orange/60 mb-4 rounded-3xl border-1 border-white px-4 py-1.5"
+				placeholder="LeBron James"
+				required
+			/>
 			<label for="email" class="mb-1 text-left"> Email </label>
 			<input
 				type="email"

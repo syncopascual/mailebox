@@ -85,7 +85,7 @@
 					{#if hideDelivered}
 						{#if parcel.status == 'Sorting'}
 							<TableRow
-								locker_num={parcel.mailbox_info?.locker_number.toString() ?? "N/A"}
+								locker_num={parcel.mailbox_info?.locker_number.toString() ?? 'N/A'}
 								parcel_num={parcel.tracking_id.toString()}
 								recipient_uid={parcel.recipient_uid}
 								status={parcel.status}
@@ -93,7 +93,7 @@
 						{/if}
 					{:else}
 						<TableRow
-							locker_num={parcel.mailbox_info?.locker_number.toString() ?? "N/A"}
+							locker_num={parcel.mailbox_info?.locker_number.toString() ?? 'N/A'}
 							parcel_num={parcel.tracking_id.toString()}
 							recipient_uid={parcel.recipient_uid}
 							status={parcel.status}

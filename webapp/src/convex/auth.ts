@@ -1,11 +1,11 @@
-import { createClient, type GenericCtx } from "@convex-dev/better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
-import { components } from "./_generated/api.js";
-import type { DataModel } from "./_generated/dataModel.d.ts";
-import { query } from "./_generated/server.js";
-import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
-import authConfig from "./auth.config";
-import { v } from "convex/values";
+import { createClient, type GenericCtx } from '@convex-dev/better-auth';
+import { convex } from '@convex-dev/better-auth/plugins';
+import { components } from './_generated/api.js';
+import type { DataModel } from './_generated/dataModel.d.ts';
+import { query } from './_generated/server.js';
+import { betterAuth, type BetterAuthOptions } from 'better-auth/minimal';
+import authConfig from './auth.config';
+import { v } from 'convex/values';
 
 const siteUrl = process.env.SITE_URL!;
 
@@ -32,21 +32,24 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
 // Example function for getting the current user
 // Feel free to edit, omit, etc.
 export const getCurrentUser = query({
-  args: {},
-  handler: async (ctx) => {
-    return authComponent.getAuthUser(ctx);
-  },
+	args: {},
+	handler: async (ctx) => {
+		return authComponent.getAuthUser(ctx);
+	}
 });
 
 export const getUserRole = query({
-  args: {},
-  handler: async (ctx) => {
-    const user = authComponent.getAuthUser(ctx);
-    const id = (await user)._id;
-    
-    const role = await ctx.db.query("userRoles").withIndex("by_uin", (q) => q.eq("uin", id)).first();
+	args: {},
+	handler: async (ctx) => {
+		const user = authComponent.getAuthUser(ctx);
+		const id = (await user)._id;
 
-    console.log(role);
-    return role;
-  }
-})
+		const role = await ctx.db
+			.query('userRoles')
+			.withIndex('by_uin', (q) => q.eq('uin', id))
+			.first();
+
+		console.log(role);
+		return role;
+	}
+});

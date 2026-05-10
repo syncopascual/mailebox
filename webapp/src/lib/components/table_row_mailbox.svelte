@@ -75,10 +75,13 @@
 	</div>
 
 	<div class="w-1/5 content-center text-center text-sm">
-		<button class="bg-mlb-orange text-mlb-white px-3 py-1 rounded-lg font-bold drop-shadow-sm enabled:hover:brightness-90 disabled:bg-mlb-gray"
-				onclick={() => {isOverrideActive = true}}
-		> 
-			Unlock 
+		<button
+			class="bg-mlb-orange text-mlb-white disabled:bg-mlb-gray rounded-lg px-3 py-1 font-bold drop-shadow-sm enabled:hover:brightness-90"
+			onclick={() => {
+				isOverrideActive = true;
+			}}
+		>
+			Unlock
 		</button>
 	</div>
 </div>
