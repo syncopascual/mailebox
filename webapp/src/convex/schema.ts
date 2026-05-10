@@ -12,11 +12,11 @@ export default defineSchema({
 		tracking_id: v.string(),
 		recipient_uid: v.string(),
 		courier_id: v.string(),
-		delivered_by: v.string(),
-		in_locker_by: v.string(),
-		claim_date: v.string(),
-		claim_by: v.string(),
-		storage_date: v.string(),
+		delivered_by: v.float64(),
+		in_locker_by: v.float64(),
+		claim_date: v.float64(),
+		claim_by: v.float64(),
+		storage_date: v.float64(),
 		status: v.string()
 	}).index('by_recipient_parcel', ['recipient_uid', 'tracking_id']),
 	scans: defineTable({
@@ -25,8 +25,8 @@ export default defineSchema({
 		status: v.string(),
 		scanned_at: v.number()
 	}).index('by_uin', ['uin']),
-  userRoles: defineTable({
-    uin: v.string(),
-    role: v.string(),
-  }).index("by_uin", ["uin"])
+	userRoles: defineTable({
+		uin: v.string(),
+		role: v.string()
+	}).index('by_uin', ['uin'])
 });
