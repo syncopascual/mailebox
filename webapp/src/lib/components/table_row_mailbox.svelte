@@ -1,5 +1,14 @@
 <script>
 	import Modal from './modal.svelte';
+	import { useConvexClient } from 'convex-svelte';
+	import { api } from '$convex/_generated/api.js';
+
+	const client = useConvexClient();
+
+	async function handleConfirm() {
+		await client.action(api.mqtt.publishCommand, { command: 'open' });
+		isOverrideActive = false; // close the modal
+	}
 
 	let {
 		locker_num = '24',
@@ -120,6 +129,7 @@
 			class="{isClaimPeriodFinished
 				? 'bg-mlb-green'
 				: 'bg-mlb-red'} text-mlb-white text-l m-3 rounded-2xl px-7 py-3 font-bold drop-shadow-sm hover:brightness-90"
+			onclick={handleConfirm}
 		>
 			Confirm
 		</button>

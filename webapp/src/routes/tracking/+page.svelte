@@ -72,21 +72,19 @@
 	// For QR scanning (auth)
 	let otpStatus = $state('');
 	let isLoading = $state(false);
-	let currentScan = $state(null);
+	const latestScanQuery = $derived(useQuery(api.scanner.getLatestScan, {}));
+	let currentScan = $derived(latestScanQuery.data ?? null);
 
-	async function fetchScan() {
-		try {
-			const result = await client.action(api.scanner.syncScan, {});
-			if (result.scan) {
-				currentScan = result.scan;
-			}
-		} catch (err) {
-			console.error('Failed to sync scan:', err);
-		}
-	}
+	// Poll Python service in the background to keep Convex DB updated
+	let scanInterval: ReturnType<typeof setInterval>;
 
 	onMount(() => {
-		fetchScan();
+		scanInterval = setInterval(() => {
+			client.action(api.scanner.syncScan, {}).catch((err) => {
+				console.error('Failed to sync scan:', err);
+			});
+		}, 2000);
+		return () => clearInterval(scanInterval);
 	});
 
 	function isScanExpired(scan) {
@@ -97,7 +95,6 @@
 	async function submitOTP() {
 		isLoading = true;
 		otpStatus = '';
-		status = 'Authenticating via Python...';
 
 		if (!currentScan) {
 			otpStatus = 'Please scan first.';
@@ -107,7 +104,12 @@
 
 		if (isScanExpired(currentScan)) {
 			otpStatus = 'Scan expired. Please scan again.';
-			currentScan = null; // clear it
+			isLoading = false;
+			return;
+		}
+
+		if (userParcel.data?.parcel_info?.recipient_uid !== currentScan!.uin) {
+			otpStatus = 'Identity mismatch. This QR code does not match the parcel recipient.';
 			isLoading = false;
 			return;
 		}
@@ -124,10 +126,10 @@
 			const result = await client.action(api.scanner.verifyOtp, {
 				uin: currentScan!.uin,
 				otp: otp,
-				transaction_id: currentScan.transaction_id
+				transaction_id: currentScan!.transaction_id
 			});
 
-			console.log(result);
+			console.log('OTP RESULT', result);
 			const authStatus = result;
 
 			if (authStatus) {
@@ -138,7 +140,7 @@
 			}
 		} catch (err) {
 			console.error(err);
-			status = 'Error: Could not reach the backend.';
+			otpStatus = 'Error: Could not reach the backend.';
 		} finally {
 			isLoading = false;
 		}

@@ -55,14 +55,14 @@
 		"status": "Claimed"
 	},
 	{
-		"tracking_id": "PH3134",
-		"recipient_uid": "1234-5678-9012-3456",
+		"tracking_id": "PH6767",
+		"recipient_uid": "3579649318",
 		"courier_id": "smthng smthng id",
 		"delivered_by": 1777703988382,
 		"in_locker_by": 1777703988382,
 		"claim_date": 1777703988382,
 		"claim_by": 1777703988382,
 		"storage_date": 1777703988382,
-		"status": "Claimed"
+		"status": "Sorting"
 	}
 ]

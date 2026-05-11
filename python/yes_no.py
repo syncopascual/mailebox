@@ -1,7 +1,6 @@
-from mosip_auth_sdk.models import DemographicsModel
-from mosip_auth_sdk import MOSIPAuthenticator
 from dynaconf import Dynaconf
-import serial
+from mosip_auth_sdk import MOSIPAuthenticator
+from mosip_auth_sdk.models import DemographicsModel
 
 config = Dynaconf(settings_files=["./config.toml"], environments=False)
 authenticator = MOSIPAuthenticator(config=config)
