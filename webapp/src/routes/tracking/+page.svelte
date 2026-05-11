@@ -99,6 +99,12 @@
 		otpStatus = '';
 		status = 'Authenticating via Python...';
 
+		if (userParcel.data?.parcel_info?.recipient_uid !== currentScan.uin) {
+			otpStatus = 'Identity mismatch. This QR code does not match the parcel recipient.';
+			isLoading = false;
+			return;
+		}
+
 		if (!currentScan) {
 			otpStatus = 'Please scan first.';
 			isLoading = false;
