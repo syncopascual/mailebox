@@ -97,13 +97,6 @@
 	async function submitOTP() {
 		isLoading = true;
 		otpStatus = '';
-		status = 'Authenticating via Python...';
-
-		if (userParcel.data?.parcel_info?.recipient_uid !== currentScan.uin) {
-			otpStatus = 'Identity mismatch. This QR code does not match the parcel recipient.';
-			isLoading = false;
-			return;
-		}
 
 		if (!currentScan) {
 			otpStatus = 'Please scan first.';
@@ -114,6 +107,12 @@
 		if (isScanExpired(currentScan)) {
 			otpStatus = 'Scan expired. Please scan again.';
 			currentScan = null; // clear it
+			isLoading = false;
+			return;
+		}
+
+		if (userParcel.data?.parcel_info?.recipient_uid !== currentScan!.uin) {
+			otpStatus = 'Identity mismatch. This QR code does not match the parcel recipient.';
 			isLoading = false;
 			return;
 		}
@@ -130,7 +129,7 @@
 			const result = await client.action(api.scanner.verifyOtp, {
 				uin: currentScan!.uin,
 				otp: otp,
-				transaction_id: currentScan.transaction_id
+				transaction_id: currentScan!.transaction_id
 			});
 
 			console.log(result);
