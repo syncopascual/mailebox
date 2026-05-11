@@ -3,7 +3,7 @@ import { action, mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
 import { api } from './_generated/api.js';
 
-const PYTHON_URL = 'http://143.198.85.47:8000';
+const PYTHON_URL = 'http://172.17.243.188:8000';
 
 export const syncScan = action({
 	args: {},
@@ -67,8 +67,14 @@ export const saveScan = mutation({
 export const getLatestScan = query({
 	args: {},
 	handler: async (ctx) => {
-		const scan = await ctx.db.query('scans').order('desc').first();
-		return scan ?? null;
+		const scan = await ctx.db
+			.query('scans')
+			.withIndex('by_scanned_at', (q) => q)
+			.order('desc')
+			.first();
+		if (!scan) return null;
+		if (Date.now() - scan.scanned_at * 1000 > 3 * 60 * 1000) return null;
+		return scan;
 	}
 });
 

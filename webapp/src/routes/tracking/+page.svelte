@@ -129,7 +129,7 @@
 				transaction_id: currentScan!.transaction_id
 			});
 
-			console.log(result);
+			console.log('OTP RESULT', result);
 			const authStatus = result;
 
 			if (authStatus) {
