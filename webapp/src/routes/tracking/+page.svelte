@@ -140,7 +140,7 @@
 
 			if (authStatus) {
 				otpStatus = 'Unlocked';
-				await client.action(api.mqtt.publishCommand, { command: 'open' });
+				await client.action(api.mqtt.publishCommand, { ID: userParcel.data?.locker_num, command: 'open' });
 				await client.mutation(api.attempts.logAttempt, {
 					locker_num: userParcel.data?.locker_num,
 					date: Date.now(),
