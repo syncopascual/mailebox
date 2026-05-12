@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-import secrets
 import socket
 import time
 
@@ -18,44 +17,45 @@ authenticator = MOSIPAuthenticator(config=config)
 app = FastAPI()
 
 latest_scan = None
-auth_tokens = {}  # token -> mac
-pending_commands = {}  # mac -> list[dict]
+
+
+def publish_command(cmd: str):
+    """
+    Publish a command to the ESP32 via EMQX HTTP API (MQTT over TLS).
+    Reads EMQX credentials from environment variables.
+    """
+    emqx_url = os.getenv("EMQX_API_URL")
+    app_id = os.getenv("EMQX_APP_ID")
+    app_secret = os.getenv("EMQX_APP_SECRET")
+
+    if not all([emqx_url, app_id, app_secret]):
+        print("Warning: EMQX env vars missing, skipping MQTT publish")
+        return
+
+    auth_str = base64.b64encode(f"{app_id}:{app_secret}".encode()).decode()
+
+    try:
+        resp = requests.post(
+            f"{emqx_url}/publish",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Basic {auth_str}",
+            },
+            json={"topic": "esp32/commands", "payload": cmd, "qos": 1},
+            timeout=5,
+        )
+        resp.raise_for_status()
+        print(f"Published to esp32/commands: {cmd}")
+    except Exception as e:
+        print(f"MQTT publish failed: {e}")
 
 
 def clear_expired_scan():
+    """Auto-clear scan after 3 minutes (180 seconds)."""
     global latest_scan
     if latest_scan and (time.time() - latest_scan["scanned_at"] > 180):
         print("Scan expired, clearing.")
         latest_scan = None
-
-
-@app.post("/api/register")
-async def register(request: Request):
-    data = await request.json()
-    mac = data.get("mac", "")
-    token = secrets.token_hex(16)
-    auth_tokens[token] = mac
-    return {"token": token}
-
-
-@app.get("/api/commands/{mac}")
-async def get_commands(mac: str):
-    clear_expired_scan()
-    cmds = pending_commands.get(mac, [])
-    if cmds:
-        return cmds.pop(0)
-    return {}  # Empty = no commands
-
-
-@app.post("/api/result")
-async def receive_result(request: Request):
-    data = await request.json()
-    command_id = data.get("command_id", "")
-    global latest_scan
-    if latest_scan and command_id.startswith("otp-" + latest_scan["transaction_id"]):
-        print(f"ESP32 confirmed {command_id}, clearing scan.")
-        latest_scan = None
-    return {"status": "ok"}
 
 
 @app.post("/api/scan")
@@ -70,6 +70,11 @@ async def receive_scan(request: Request):
     try:
         data = json.loads(raw_string)
         print("Success! Parsed as JSON:")
+
+        global latest_scan
+        latest_scan = None  # Only 1 scan at a time
+        clear_expired_scan()
+
         otp_response = authenticator.genotp(
             individual_id=data["uin"],
             individual_id_type="UIN",
@@ -78,26 +83,26 @@ async def receive_scan(request: Request):
         otp_response_body = otp_response.json()
         print(f"OTP: {otp_response_body}")
 
-        global latest_scan
+        transaction_id = otp_response_body["transactionID"]
+
         latest_scan = {
             "uin": data["uin"],
-            "mac": data["mac"],
-            "transaction_id": otp_response_body["transactionID"],
+            "mac": data.get("mac", "unknown"),
+            "transaction_id": transaction_id,
             "otp_response": otp_response_body,
             "scanned_at": time.time(),
         }
 
-        return {
-            "status:": "OTP sent",
-            "uin": data["uin"],
-            "transaction_id": otp_response_body["transactionID"],
-            "otp_response": otp_response_body,
-            "scanned_at": time.time(),
-        }
+        return JSONResponse(
+            content={"status": "otp_sent", "transaction_id": transaction_id}
+        )
 
     except json.JSONDecodeError:
         print("Failed to parse JSON")
         return JSONResponse(status_code=400, content={"error": "Invalid JSON payload"})
+    except Exception as e:
+        print(f"OTP generation failed: {e}")
+        return JSONResponse(status_code=500, content={"error": "OTP generation failed"})
 
 
 @app.get("/api/scan-data")
@@ -132,20 +137,16 @@ async def receive_otp(request: Request):
         authStatus = response_body["response"]["authStatus"]
 
         global latest_scan
-        assert latest_scan is not None
-        cmd = "success" if authStatus else "failure"
-        mac = latest_scan["mac"]
-        transaction_id = latest_scan["transaction_id"]
-        pending_commands.setdefault(mac, []).append(
-            {
-                "command_id": f"otp-{transaction_id}",
-                "function": cmd,
-                "target_id": "ALL",
-                "params": {},
-            }
-        )
+        if latest_scan and latest_scan["transaction_id"] == transaction_id:
+            if authStatus:
+                publish_command(json.dumps({"command": "success"}))
+            else:
+                publish_command(json.dumps({"command": "failure"}))
+            latest_scan = None  # Delete immediately after publishing
+        else:
+            print("Warning: OTP result for unknown/expired transaction")
 
-        return authStatus
+        return JSONResponse(content={"authStatus": authStatus})
 
     except json.JSONDecodeError:
         print("Failed to parse JSON")
