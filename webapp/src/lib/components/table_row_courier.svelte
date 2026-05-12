@@ -1,6 +1,5 @@
 <script>
 	import Modal from './modal.svelte';
-	import client from 
 	import { useQuery, useConvexClient } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	let {
