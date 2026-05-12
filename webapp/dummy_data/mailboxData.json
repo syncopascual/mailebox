@@ -8,8 +8,8 @@
 	{
 		"locker_number": 2,
 		"recipient_uid": "1809",
-		"parcel_id": "jd7ckg2nde8jbs7s89wc0bmz4h85znrt",
-		"status": "Unavailable"
+		"parcel_id": "",
+		"status": "Available"
 	},
 	{
 		"locker_number": 3,
@@ -20,19 +20,19 @@
 	{
 		"locker_number": 4,
 		"recipient_uid": "6969",
-		"parcel_id": "jd7587esy2fb7y0v7ww12hszq985zxnk",
-		"status": "Unavailable"
+		"parcel_id": "",
+		"status": "Available"
 	},
 	{
 		"locker_number": 5,
 		"recipient_uid": "6969",
-		"parcel_id": "jd74ek095jy1k32f3b46ck3wz185y423",
-		"status": "Unavailable"
+		"parcel_id": "",
+		"status": "Available"
 	},
 	{
 		"locker_number": 6,
 		"recipient_uid": "6969",
-		"parcel_id": "jd72ageg121d0gw33e1yqb96y185yck3",
-		"status": "Unavailable"
+		"parcel_id": "",
+		"status": "Available"
 	}
 ]
