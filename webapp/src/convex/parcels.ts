@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { query } from './_generated/server.js';
+import { query, mutation } from './_generated/server.js';
 
 export const getParcels = query({
 	args: {},
@@ -25,6 +25,36 @@ export const getParcel = query({
 		return {
 			parcel_info: userParcel,
 			locker_num: mailbox ? mailbox.locker_number : 'N/A'
+		};
+	}
+});
+
+
+export const updateParcel = mutation({
+	args: { 
+		tracking_num: v.string(),
+		status: v.optional(v.string()), 
+		courier: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const userParcel = await ctx.db
+			.query('parcels')
+			.filter((q) => q.eq(q.field('tracking_id'), args.tracking_num))
+			.first();
+
+		if (!userParcel) {
+			throw new Error(`Parcel with tracking number ${args.tracking_num} not found.`);
+		}
+
+		const { tracking_num, ...updates } = args;
+
+		if (Object.keys(updates).length > 0) {
+			await ctx.db.patch(userParcel._id, updates);
+		}
+
+		return {
+			success: true,
+			parcel_info: { ...userParcel, ...updates }
 		};
 	}
 });
