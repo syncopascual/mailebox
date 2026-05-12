@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const logAttempt = mutation({
@@ -7,4 +7,12 @@ export const logAttempt = mutation({
     const newAttemptId = await ctx.db.insert("attempts", { locker_number: args.locker_num, attempt_date: args.date, uin: args.uin, is_successful: args.is_successful });
     return newAttemptId;
   },
+});
+
+export const getAttempts = query({
+  args: {},
+  handler: async (ctx) => {
+    const attempts = await ctx.db.query('attempts').collect();
+    return attempts;
+  }
 });
