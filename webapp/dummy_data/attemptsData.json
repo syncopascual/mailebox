@@ -1,0 +1,32 @@
+[
+  {
+    "attempt_date": 1778588296508,
+    "is_successful": false,
+    "locker_number": 1,
+    "uin": "1234-2345-5678"
+  },
+  {
+    "attempt_date": 1778588317437,
+    "is_successful": true,
+    "locker_number": 1,
+    "uin": "6767-3345-5678"
+  },
+  {
+    "attempt_date": 1778588296508,
+    "is_successful": false,
+    "locker_number": 2,
+    "uin": "1234-8994-5678"
+  },
+  {
+    "attempt_date": 1778588317437,
+    "is_successful": true,
+    "locker_number": 3,
+    "uin": "1234-2345-4566"
+  },
+  {
+    "attempt_date": 1778588317437,
+    "is_successful": true,
+    "locker_number": 4,
+    "uin": "1234-3321-5678"
+  }
+]
