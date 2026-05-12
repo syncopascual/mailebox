@@ -148,6 +148,10 @@
 					uin: currentScan!.uin,
 					is_successful: true
 				});
+				await client.mutation(api.parcels.updateParcel, {
+					tracking_num: tracking_num!,
+					status: 'Claimed'
+				});
 			} else {
 				otpStatus = 'OTP Invalid';
 			}
