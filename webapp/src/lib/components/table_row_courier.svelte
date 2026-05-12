@@ -1,14 +1,17 @@
 <script>
 	import Modal from './modal.svelte';
-
+	import client from 
+	import { useQuery, useConvexClient } from 'convex-svelte';
+	import { api } from '$convex/_generated/api.js';
 	let {
 		locker_num = '24',
 		parcel_num = '123',
 		recipient_uid = 'DELA CRUZ, Juan A.',
 		status = 'For Delivery'
 	} = $props();
-
+	const client = useConvexClient();
 	let isOverrideActive = $state(false);
+	let errorMsg = $state('');
 
 	function handleClick() {
 		if (status == 'In Locker' || status == 'Claimed') {
@@ -16,6 +19,18 @@
 		} else {
 			isOverrideActive = true;
 		}
+	}
+
+	function handleDelivery(track_id){
+		errorMsg = '';
+		try {
+			await client.mutation(api.parcels.updateParcel, {
+					tracking_num: track_id,
+					status: 'In Locker'
+				});
+			} catch (err) {
+				errorMsg = err.message || 'Delivery Error';
+		}	
 	}
 </script>
 
@@ -64,6 +79,8 @@
 
 		<button
 			class="bg-mlb-orange text-mlb-white text-l m-3 rounded-2xl px-7 py-3 font-bold drop-shadow-sm hover:brightness-90"
+			onclick={() => handleDelivery(parcel_num)}
+			disabled={status != 'Sorting'}
 		>
 			Deliver
 		</button>
