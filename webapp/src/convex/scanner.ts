@@ -3,7 +3,7 @@ import { action, mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
 import { api } from './_generated/api.js';
 
-const PYTHON_URL = 'http://172.17.243.188:8000';
+const PYTHON_URL = 'http://143.198.85.47:8000';
 
 export const syncScan = action({
 	args: {},
