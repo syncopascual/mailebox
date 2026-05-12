@@ -214,7 +214,12 @@
 			</button>
 
 			{#if detailsOpen}
-				<StatusDetails stat={userParcel.data.parcel_info.status} onClose={handleClose} />
+				<StatusDetails 
+					stat={userParcel.data.parcel_info.status} 
+					deliveredBy={userParcel.data.parcel_info.delivered_by}
+					inLockerBy={userParcel.data.parcel_info.in_locker_by}
+					claimedBy={userParcel.data.parcel_info.claim_date}
+					onClose={handleClose} />
 			{/if}
 
 			{#if userParcel.data.parcel_info.status == 'In Locker'}
@@ -234,7 +239,7 @@
 <!-- OTP Modal -->
 {#snippet modal_content()}
 	<div class="flex flex-col place-content-center items-center justify-center text-center">
-		<h1 class="text-mlb-orange mb-4 text-4xl font-bold">Unlock Locker X</h1>
+		<h1 class="text-mlb-orange mb-4 text-4xl font-bold">Unlock Locker {userParcel.data?.locker_num}</h1>
 
 		<h2 class="text-mlb-black my-4 text-xl font-bold">Enter OTP Code below:</h2>
 		<div id="otp_code" class="my-4 flex min-w-0 shrink gap-x-2">

@@ -6,9 +6,27 @@
 
 	import { slide } from 'svelte/transition';
 
-	let { stat, onClose } = $props();
+	let { stat, onClose, deliveredBy, inLockerBy, claimedBy } = $props();
 	let states = ['In Transit', 'Sorting', 'In Locker', 'Claimed'];
 	let status = $derived(states.indexOf(stat) + 1);
+
+	let deliverDate = $derived.by(() => {
+		if (deliveredBy != "N/A")
+			return new Date(parseInt(deliveredBy)).toUTCString();
+		else 
+			return "N/A";
+	}), lockerDate = $derived.by(() => {
+		if (inLockerBy != "N/A")
+			return new Date(parseInt(inLockerBy)).toUTCString();
+		else 
+			return "N/A";
+	}), claimDate = $derived.by(() => {
+		if (claimedBy != "N/A")
+			return new Date(parseInt(claimedBy)).toUTCString();
+		else 
+			return "N/A";
+	});
+
 </script>
 
 <div
@@ -25,12 +43,9 @@
 		>
 			<img src={truck} alt="Truck Icon" class="size-3/4" />
 		</div>
-		<div class="col-span-3 pl-2 md:pl-0 {status >= 1 ? 'opacity-100' : 'opacity-50'}">
-			<p class="font-medium">In Transit</p>
-			{#if status >= 1}
-				<p class="text-sm">timestamp</p>
-			{/if}
-		</div>
+		<p class="flex items-center col-span-3 pl-2 md:pl-0 font-medium {status >= 1 ? 'opacity-100' : 'opacity-50'}">
+			In Transit
+		</p>
 
 		<div
 			class="bg-mlb-blue flex h-5 w-1 items-center justify-self-center {status >= 2
@@ -50,7 +65,7 @@
 		<div class="col-span-3 pl-2 md:pl-0 {status >= 2 ? 'opacity-100' : 'opacity-50'}">
 			<p class="font-medium">Sorting</p>
 			{#if status >= 2}
-				<p class="text-sm">timestamp</p>
+				<p class="text-sm">{deliverDate}</p>
 			{/if}
 		</div>
 
@@ -72,7 +87,7 @@
 		<div class="col-span-3 pl-2 md:pl-0 {status >= 3 ? 'opacity-100' : 'opacity-50'}">
 			<p class="font-medium">In Locker</p>
 			{#if status >= 3}
-				<p class="text-sm">timestamp</p>
+				<p class="text-sm">{lockerDate}</p>
 			{/if}
 		</div>
 
@@ -94,7 +109,7 @@
 		<div class="col-span-3 pl-2 md:pl-0 {status >= 4 ? 'opacity-100' : 'opacity-50'}">
 			<p class="font-medium">Claimed</p>
 			{#if status >= 4}
-				<p class="text-sm">timestamp</p>
+				<p class="text-sm">{claimDate}</p>
 			{/if}
 		</div>
 	</div>

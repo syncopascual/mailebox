@@ -5,7 +5,7 @@
 	import star from '$lib/assets/icons/star.svg';
 
 	let stat = $props();
-	let states = ['In Transit', 'Delivered', 'In Locker', 'Claimed'];
+	let states = ['In Transit', 'Sorting', 'In Locker', 'Claimed'];
 	let status = $derived(states.indexOf(stat.stat) + 1);
 </script>
 
