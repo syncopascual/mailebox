@@ -1,7 +1,11 @@
+import base64
 import json
+import os
+import secrets
 import socket
 import time
 
+import requests
 import uvicorn
 from dynaconf import Dynaconf
 from fastapi import FastAPI, Request
@@ -14,6 +18,44 @@ authenticator = MOSIPAuthenticator(config=config)
 app = FastAPI()
 
 latest_scan = None
+auth_tokens = {}  # token -> mac
+pending_commands = {}  # mac -> list[dict]
+
+
+def clear_expired_scan():
+    global latest_scan
+    if latest_scan and (time.time() - latest_scan["scanned_at"] > 180):
+        print("Scan expired, clearing.")
+        latest_scan = None
+
+
+@app.post("/api/register")
+async def register(request: Request):
+    data = await request.json()
+    mac = data.get("mac", "")
+    token = secrets.token_hex(16)
+    auth_tokens[token] = mac
+    return {"token": token}
+
+
+@app.get("/api/commands/{mac}")
+async def get_commands(mac: str):
+    clear_expired_scan()
+    cmds = pending_commands.get(mac, [])
+    if cmds:
+        return cmds.pop(0)
+    return {}  # Empty = no commands
+
+
+@app.post("/api/result")
+async def receive_result(request: Request):
+    data = await request.json()
+    command_id = data.get("command_id", "")
+    global latest_scan
+    if latest_scan and command_id.startswith("otp-" + latest_scan["transaction_id"]):
+        print(f"ESP32 confirmed {command_id}, clearing scan.")
+        latest_scan = None
+    return {"status": "ok"}
 
 
 @app.post("/api/scan")
@@ -39,12 +81,19 @@ async def receive_scan(request: Request):
         global latest_scan
         latest_scan = {
             "uin": data["uin"],
+            "mac": data["mac"],
             "transaction_id": otp_response_body["transactionID"],
             "otp_response": otp_response_body,
             "scanned_at": time.time(),
         }
 
-        return data["uin"], otp_response_body
+        return {
+            "status:": "OTP sent",
+            "uin": data["uin"],
+            "transaction_id": otp_response_body["transactionID"],
+            "otp_response": otp_response_body,
+            "scanned_at": time.time(),
+        }
 
     except json.JSONDecodeError:
         print("Failed to parse JSON")
@@ -53,11 +102,9 @@ async def receive_scan(request: Request):
 
 @app.get("/api/scan-data")
 async def get_scan_data():
+    clear_expired_scan()
     global latest_scan
     if latest_scan is None:
-        return {"scan": None}
-    if time.time() - latest_scan["scanned_at"] > 180:  # 3 minutes = 180 seconds
-        latest_scan = None
         return {"scan": None}
     return {"scan": latest_scan}
 
@@ -83,6 +130,20 @@ async def receive_otp(request: Request):
         response_body = response.json()
         print(f"RESPONSE: {response_body}")
         authStatus = response_body["response"]["authStatus"]
+
+        global latest_scan
+        assert latest_scan is not None
+        cmd = "success" if authStatus else "failure"
+        mac = latest_scan["mac"]
+        transaction_id = latest_scan["transaction_id"]
+        pending_commands.setdefault(mac, []).append(
+            {
+                "command_id": f"otp-{transaction_id}",
+                "function": cmd,
+                "target_id": "ALL",
+                "params": {},
+            }
+        )
 
         return authStatus
 
