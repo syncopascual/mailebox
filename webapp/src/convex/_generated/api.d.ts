@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
 import type * as courier from "../courier.js";
 import type * as http from "../http.js";
@@ -23,6 +24,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  attempts: typeof attempts;
   auth: typeof auth;
   courier: typeof courier;
   http: typeof http;
