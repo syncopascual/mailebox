@@ -10,8 +10,20 @@
 	import TableRow from '$lib/components/table_row_courier.svelte';
 
 	import { useQuery } from 'convex-svelte';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { api } from '$convex/_generated/api.js';
-	const parcels = useQuery(api.courier.getParcelsForCourier, { courier_id: 'smthng smthng id' });
+
+	const auth = useAuth();
+	const isAuthenticated = $derived(auth.isAuthenticated);
+	const currentUserResponse = useQuery(api.auth.getCurrentUser, () =>
+		isAuthenticated ? {} : 'skip'
+	);
+	let user = $derived(currentUserResponse.data);
+
+
+	const parcels = useQuery(api.courier.getParcelsForCourier, () => ({
+		courier_id: user ? user._id : ""
+	}));
 
 	let searchValue = $state('');
 
