@@ -18,15 +18,18 @@ export const getMailboxes = query({
 	}
 });
 
-export const getFirstFreeMailbox = query({
+export const getAvailableMailboxes = query({
 	args: {},
 	handler: async (ctx) => {
-		const mailbox = await ctx.db
+		const mailboxes = await ctx.db
 			.query('mailboxes')
 			.filter((q) => q.eq(q.field('status'), 'Available'))
-			.first();
-
-		return mailbox?.locker_number ?? null;
+			.collect()
+			
+		return mailboxes.map((m) => ({
+			_id: m._id,
+			locker_number: m.locker_number
+		}))
 	}
 });
 
@@ -51,7 +54,6 @@ export const addParcelToLocker = mutation({
 			throw new Error('Mailbox number not found');
 		}
 
-		// edge case sanity checjk lang this should never happen since we use getFirstFreeMailbox beforehand
 		if (mailbox.status !== 'Available') {
 			throw new Error('Mailbox not available');
 		}
