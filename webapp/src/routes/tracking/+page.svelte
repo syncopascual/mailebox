@@ -141,17 +141,29 @@
 
 			if (authStatus) {
 				otpStatus = 'Unlocked';
+				let timestamp = Date.now();
 				await client.action(api.mqtt.publishCommand, { ID: userParcel.data?.locker_num, command: 'open' });
+
+				// Logs successful claim attempt
 				await client.mutation(api.attempts.logAttempt, {
 					locker_num: userParcel.data?.locker_num,
-					date: Date.now(),
+					date: timestamp,
 					uin: currentScan!.uin,
 					is_successful: true
 				});
+
+				// Updates parcel status to Claimed & adds claim date
 				await client.mutation(api.parcels.updateParcel, {
 					tracking_num: tracking_num!,
-					status: 'Claimed'
+					status: 'Claimed',
+					claim_date: timestamp,
 				});
+
+				// Updates mailbox status
+				await client.mutation(api.mailboxes.clearLocker, {
+					parcel_id: userParcel.data.parcel_info._id,
+				});
+        
 			} else {
 				otpStatus = 'OTP Invalid';
 			}

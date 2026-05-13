@@ -69,3 +69,30 @@ export const addParcelToLocker = mutation({
 		return { success: true };
 	}
 });
+
+export const clearLocker = mutation({
+	args: { 
+		parcel_id: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const parcelLocker = await ctx.db
+			.query('mailboxes')
+			.filter((q) => q.eq(q.field('parcel_id'), args.parcel_id))
+			.first();
+
+		if (!parcelLocker) {
+			throw new Error(`No mailbox contains parcel with id ${args.parcel_id}.`);
+		}
+
+		const updates = { recipient_uid:  "", parcel_id: "", status: "Available"};
+
+		if (Object.keys(updates).length > 0) {
+			await ctx.db.patch(parcelLocker._id, updates);
+		}
+
+		return {
+			success: true,
+			locker_info: { ...parcelLocker, ...updates }
+		};
+	}
+});

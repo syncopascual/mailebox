@@ -35,6 +35,7 @@ export const updateParcel = mutation({
 		tracking_num: v.string(),
 		status: v.optional(v.string()), 
 		courier: v.optional(v.string()),
+		claim_date: v.optional(v.float64()),
 	},
 	handler: async (ctx, args) => {
 		const userParcel = await ctx.db
