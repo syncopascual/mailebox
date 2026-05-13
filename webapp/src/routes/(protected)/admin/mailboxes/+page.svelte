@@ -14,12 +14,13 @@
 	const mailboxes = useQuery(api.mailboxes.getMailboxes, {});
 
 	// first available locker
-	const freeLocker = useQuery(api.mailboxes.getFirstFreeMailbox, {});
+	const freeLockers = useQuery(api.mailboxes.getAvailableMailboxes, {});
 	// client so we can add parcel to locker
 	const client = useConvexClient();
 	// states for the modal and stuff
 	let trackingInput = $state('');
 	let errorMsg = $state('');
+	let selectedLocker = $state(null);
 	$effect(() => {
 		if (!isAddLockerActive) {
 			trackingInput = '';
@@ -33,14 +34,14 @@
 			errorMsg = 'Input a tracking number';
 			return;
 		}
-		if (!freeLocker.data) {
-			errorMsg = 'No available lockers';
+		if (!selectedLocker) {
+			errorMsg = 'No available locker selected';
 			return;
 		}
 
 		try {
 			await client.mutation(api.mailboxes.addParcelToLocker, {
-				locker_number: freeLocker.data,
+				locker_number: selectedLocker,
 				tracking_id: trackingInput.trim()
 			});
 			isAddLockerActive = false;
@@ -61,12 +62,26 @@
 		<h1 class="text-mlb-orange mb-4 text-4xl font-bold">Add Parcel to Locker</h1>
 
 		<div class="my-10">
-			{#if freeLocker.isLoading}
-				<p class="mb-8 text-2xl font-bold">Searching free lockers...</p>
-			{:else if freeLocker.error}
+			{#if freeLockers.isLoading}
+				<p class="mb-8 text-2xl font-bold">Searching for free lockers...</p>
+			{:else if freeLockers.error}
 				<p class="mb-8 text-2xl font-bold">locker loading error</p>
-			{:else if freeLocker.data}
-				<p class="mb-8 text-2xl font-bold">Locker Number: {freeLocker.data}</p>
+			{:else if freeLockers.data}
+				<label for="locker_select" class="w-full text-lg font-bold"
+					>Select Available Locker:</label
+				>
+				<select
+					id="locker_select"
+					class="bg-mlb-gray/50 text-mlb-black hover:border-mlb-orange/60 rounded-3xl border-1 border-white px-2 py-1.5 text-center"
+					bind:value={selectedLocker}
+				>
+					<option value={null} disabled>-- Choose a locker --</option>
+					{#each freeLockers.data as locker (locker.locker_number)}
+						<option value={locker.locker_number}>
+							Locker {locker.locker_number}
+						</option>
+					{/each}
+				</select>
 			{:else}
 				<p class="mb-8 text-2xl font-bold">No available lockers</p>
 			{/if}
