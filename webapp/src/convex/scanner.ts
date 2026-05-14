@@ -6,35 +6,6 @@ import { publishToEmqx } from './mqtt';
 
 const PYTHON_URL = 'http://143.198.85.47:8000';
 
-export const syncScan = action({
-	args: {},
-	handler: async (ctx) => {
-		const response = await fetch(`${PYTHON_URL}/api/scan-data`, {
-			method: 'GET'
-		});
-
-		if (!response.ok) {
-			throw new Error('Python service is down or returned an error');
-		}
-
-		const data = await response.json();
-		const scan = data.scan;
-
-		if (!scan) {
-			return { scan: null };
-		}
-
-		await ctx.runMutation(api.scanner.saveScan, {
-			uin: scan.uin,
-			transaction_id: scan.transaction_id,
-			status: scan.status ?? 'pending',
-			scanned_at: scan.scanned_at
-		});
-
-		return { scan };
-	}
-});
-
 export const saveScan = mutation({
 	args: {
 		uin: v.string(),
@@ -133,7 +104,7 @@ export const verifyOtp = action({
 			});
 
 			await ctx.runMutation(api.mailboxes.clearLocker, {
-				parcel_id: args.parcel_id,
+				parcel_id: args.parcel_id
 			});
 
 			return { authStatus: true, status: 'Unlocked' };

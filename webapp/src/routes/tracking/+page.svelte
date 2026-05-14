@@ -73,20 +73,6 @@
 	let isLoading = $state(false);
 	let latestScanQuery = $state(useQuery(api.scanner.getLatestScan, {}));
 	let currentScan = $derived(latestScanQuery.data ?? null);
-	$inspect(currentScan);
-
-	// Poll Python service in the background to keep Convex DB updated
-	let scanInterval: ReturnType<typeof setInterval>;
-
-	$effect(() => {
-		const ms = isActive ? 500 : 2000;
-		scanInterval = setInterval(() => {
-			client.action(api.scanner.syncScan, {}).catch((err) => {
-				console.error('Failed to sync scan:', err);
-			});
-		}, ms);
-		return () => clearInterval(scanInterval);
-	});
 
 	function isScanExpired(scan) {
 		const threeMinutes = 3 * 60 * 1000;
