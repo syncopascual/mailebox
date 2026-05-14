@@ -72,7 +72,7 @@
 	// For QR scanning (auth)
 	let otpStatus = $state('');
 	let isLoading = $state(false);
-	const latestScanQuery = $state(useQuery(api.scanner.getLatestScan, {}));
+	let latestScanQuery = $state(useQuery(api.scanner.getLatestScan, {}));
 	let currentScan = $derived(latestScanQuery.data ?? null);
 	$inspect(currentScan);
 
