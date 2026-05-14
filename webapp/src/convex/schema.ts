@@ -36,5 +36,13 @@ export default defineSchema({
 	userRoles: defineTable({
 		uin: v.string(),
 		role: v.string()
-	}).index('by_uin', ['uin'])
+	}).index('by_uin', ['uin']),
+	pendingCommands: defineTable({
+		type: v.union(v.literal('lock'), v.literal('led')),
+		lockerId: v.optional(v.number()),
+		acked: v.boolean(),
+		createdAt: v.number()
+	})
+		.index('by_type_lockerId', ['type', 'lockerId'])
+		.index('by_type', ['type'])
 });
