@@ -6,37 +6,57 @@
 		recipient_uid = '1234',
 		delivered_by = 'Aug 22',
 		in_locker_by = 'ddd',
-		claim_by = 'ddd',
 		claim_date = 'ddd',
 		storage_date = 'ddd',
 		status = ''
 	} = $props();
 
-	let date_of_action = $state('');
+	let date_of_action = $derived.by(() => {
+		let date_of_action = 'N/A';
+		switch (status) {
+			case 'Claimed':
+				date_of_action = claim_date;
+				break;
+			case 'In Locker':
+				date_of_action = in_locker_by;
+				break;
+			case 'In Storage':
+				date_of_action = storage_date;
+				break;
+			case 'Sorting':
+				date_of_action = delivered_by;
+				break;
+			case 'In Transit':
+				date_of_action = 'N/A';
+				break;
+		}
 
-	// console.log(`Past Deadline? ${isClaimPeriodFinished}, days: ${days}, hours: ${hrs}`);
-	switch (status) {
-		case 'Claimed':
-			date_of_action = claim_date;
-			break;
-		case 'In Locker':
-			date_of_action = in_locker_by;
-			break;
-		case 'In Storage':
-			date_of_action = storage_date;
-			break;
-		case 'Sorting':
-			date_of_action = delivered_by;
-			break;
-		case 'In Transit':
-			date_of_action = 'N/A';
-			break;
-	}
+		if (date_of_action != 'N/A') 
+			date_of_action = new Date(parseInt(date_of_action)).toUTCString();
 
-	if (date_of_action != 'N/A') {
-		let date = new Date(parseInt(date_of_action));
-		date_of_action = date.toUTCString();
-	}
+		return date_of_action;
+	}),
+		progress = $derived.by(() => {
+			let progress = 1;
+			switch (status) {
+				case 'Claimed':
+					progress = 4;
+					break;
+				case 'In Locker':
+					progress = 3;
+					break;
+				case 'In Storage':
+					progress = 5;
+					break;
+				case 'Sorting':
+					progress = 2;
+					break;
+				case 'In Transit':
+					break;
+			}
+
+			return progress;
+		});
 
 	let isDetailsActive = $state(false);
 </script>
@@ -56,7 +76,7 @@
 		<div class="flex w-1/2 place-content-center items-center">
 			{status}
 		</div>
-		<div class="flex w-1/2 place-content-center items-center">
+		<div class="flex w-1/2 place-content-center items-center text-center">
 			{date_of_action}
 		</div>
 	</div>
@@ -88,40 +108,42 @@
 				<div class="w-3/5 font-bold">Date</div>
 			</div>
 
+			{#if progress > 1}
 			<div class="border-mlb-orange my-2 flex w-full flex-row rounded-lg border-2 p-2">
 				<div class="w-2/5 font-bold">Delivered to Post Office</div>
 				<div class="w-3/5 place-content-center items-center">
 					{new Date(parseInt(delivered_by)).toUTCString()}
 				</div>
 			</div>
+			{/if}
 
+			{#if progress > 2}
 			<div class="border-mlb-orange my-2 flex w-full flex-row rounded-lg border-2 p-2">
 				<div class="w-2/5 font-bold">Stored in Locker</div>
 				<div class="w-3/5 place-content-center items-center">
 					{new Date(parseInt(in_locker_by)).toUTCString()}
 				</div>
 			</div>
+			{/if}
 
+			{#if progress == 4}
 			<div class="border-mlb-orange my-2 flex w-full flex-row rounded-lg border-2 p-2">
 				<div class="w-2/5 font-bold">Claimed by Recipient</div>
 				<div class="w-3/5 place-content-center items-center">
 					{new Date(parseInt(claim_date)).toUTCString()}
 				</div>
 			</div>
+			{/if}
 
+			{#if progress == 5}
 			<div class="border-mlb-orange my-2 flex w-full flex-row rounded-lg border-2 p-2">
 				<div class="w-2/5 font-bold">Stored in Storage</div>
 				<div class="w-3/5 place-content-center items-center">
 					{new Date(parseInt(storage_date)).toUTCString()}
 				</div>
 			</div>
+			{/if}
 		</div>
-
-		<!-- <button
-			class="{isClaimPeriodFinished ? 'bg-mlb-green' : 'bg-mlb-red'} text-mlb-white text-l m-3 rounded-2xl px-7 py-3 font-bold drop-shadow-sm hover:brightness-90"
-		>
-			Confirm
-		</button> -->
 	</div>
 {/snippet}
 
