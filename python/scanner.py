@@ -1,6 +1,8 @@
+import asyncio
 import json
 import socket
 import time
+from concurrent.futures import TimeoutError  # alias for clarity
 
 import uvicorn
 from dynaconf import Dynaconf
@@ -14,6 +16,26 @@ authenticator = MOSIPAuthenticator(config=config)
 app = FastAPI()
 
 latest_scan = None
+
+MAX_RETRIES = 10
+TIMEOUT_SEC = 60
+
+
+async def _retry_with_timeout(fn, *args, **kwargs):
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return await asyncio.wait_for(
+                asyncio.to_thread(fn, *args, **kwargs), timeout=TIMEOUT_SEC
+            )
+        except asyncio.TimeoutError as e:
+            last_exc = e
+            print(f"Timeout attempt {attempt}/{MAX_RETRIES} for {fn.__name__}")
+        except Exception as e:
+            last_exc = e
+            print(f"Error attempt {attempt}/{MAX_RETRIES} for {fn.__name__}: {e}")
+            break  # non-timeout error: don't retry
+    raise last_exc
 
 
 def clear_expired_scan():
@@ -41,7 +63,8 @@ async def receive_scan(request: Request):
         latest_scan = None  # Only 1 scan at a time
         clear_expired_scan()
 
-        otp_response = authenticator.genotp(
+        otp_response = await _retry_with_timeout(
+            authenticator.genotp,
             individual_id=data["uin"],
             individual_id_type="UIN",
             email=True,
@@ -91,7 +114,8 @@ async def receive_otp(request: Request):
         otp = data["otp"]
         transaction_id = data["transaction_id"]
 
-        response = authenticator.auth(
+        response = await _retry_with_timeout(
+            authenticator.auth,
             individual_id=uin,
             individual_id_type="UIN",
             otp_value=otp,
