@@ -6,7 +6,6 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 
 	// for expandable tracking details
@@ -79,12 +78,13 @@
 	// Poll Python service in the background to keep Convex DB updated
 	let scanInterval: ReturnType<typeof setInterval>;
 
-	onMount(() => {
+	$effect(() => {
+		const ms = isActive ? 500 : 2000;
 		scanInterval = setInterval(() => {
 			client.action(api.scanner.syncScan, {}).catch((err) => {
 				console.error('Failed to sync scan:', err);
 			});
-		}, 2000);
+		}, ms);
 		return () => clearInterval(scanInterval);
 	});
 
