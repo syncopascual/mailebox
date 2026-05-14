@@ -4,7 +4,7 @@ import { v } from 'convex/values';
 import { api } from './_generated/api.js';
 import { publishToEmqx } from './mqtt';
 
-const PYTHON_URL = 'http://10.161.15.18:8000';
+const PYTHON_URL = 'http://143.198.85.47:8000';
 
 export const syncScan = action({
 	args: {},
