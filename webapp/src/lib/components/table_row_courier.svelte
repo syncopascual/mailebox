@@ -1,6 +1,6 @@
 <script>
 	import Modal from './modal.svelte';
-	import { useQuery, useConvexClient } from 'convex-svelte';
+	import { useConvexClient } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	let {
 		locker_num = '24',
@@ -27,6 +27,7 @@
 					tracking_num: track_id,
 					status: 'In Locker'
 				});
+			isOverrideActive = false;
 			} catch (err) {
 				errorMsg = err.message || 'Delivery Error';
 		}	

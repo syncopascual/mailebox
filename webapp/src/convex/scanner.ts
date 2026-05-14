@@ -92,6 +92,7 @@ export const verifyOtp = action({
 		otp: v.string(),
 		transaction_id: v.string(),
 		locker_num: v.number(),
+		parcel_id: v.string(),
 		tracking_num: v.string()
 	},
 	handler: async (ctx, args) => {
@@ -129,6 +130,10 @@ export const verifyOtp = action({
 			await ctx.runMutation(api.parcels.updateParcel, {
 				tracking_num: args.tracking_num,
 				status: 'Claimed'
+			});
+
+			await ctx.runMutation(api.mailboxes.clearLocker, {
+				parcel_id: args.parcel_id,
 			});
 
 			return { authStatus: true, status: 'Unlocked' };

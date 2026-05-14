@@ -135,6 +135,7 @@
 				otp: otp,
 				transaction_id: currentScan!.transaction_id,
 				locker_num: userParcel.data?.locker_num,
+				parcel_id: userParcel.data?.parcel_info._id,
 				tracking_num: tracking_num!
 			});
 
