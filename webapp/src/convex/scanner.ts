@@ -79,6 +79,13 @@ export const getLatestScan = query({
 	}
 });
 
+export const failedAttempt = action({
+	args: {},
+	handler: async () => {
+		await publishToEmqx('esp32/commands', JSON.stringify({ command: 'failure' }));
+	}
+});
+
 export const verifyOtp = action({
 	args: {
 		uin: v.string(),

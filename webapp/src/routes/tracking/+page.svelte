@@ -112,6 +112,7 @@
 		if (userParcel.data?.parcel_info?.recipient_uid !== currentScan!.uin) {
 			otpStatus = 'Identity mismatch. This QR code does not match the parcel recipient.';
 			isLoading = false;
+			await client.action(api.scanner.failedAttempt, {});
 			await client.mutation(api.attempts.logAttempt, {
 				locker_num: userParcel.data?.locker_num,
 				date: Date.now(),
