@@ -44,22 +44,20 @@
 			else
 				return "N/A";
 		}),
-		hrs = $derived.by(() => {
+		days = $derived.by(() => {
 			if (delivered_date != "N/A" && claim_by != "N/A") {
-				let hrs = Math.floor((date_claim - Date.now()) / 3600000);
-				
+				let today = Date.now();
+
+				let hrs = Math.floor((claim_by - today) / 3600000);
+				let days = Math.floor(hrs / 24);
+
+				// Past claiming deadline already
 				if (hrs < 0) {
+					days *= -1;
 					hrs *= -1;
 				}
 
-				return hrs;
-			}
-
-			return "N/A";
-		}),
-		days = $derived.by(() => {
-			if (delivered_date != "N/A" && claim_by != "N/A") {
-				return Math.floor(hrs/24);;
+				return days;
 			}
 
 			return "N/A";

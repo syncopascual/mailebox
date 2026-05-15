@@ -37,24 +37,35 @@
 
 	const userParcel = $derived(useQuery(api.parcels.getParcel, { tracking_num: tracking_num }));
 
-	let claim_in = 'N/A',
-		isClaimPeriodFinished = false,
-		days = $derived.by(() => {
+	let days = $derived.by(() => {
 			if (userParcel.data != undefined) {
-				let claim_by = new Date(userParcel.data.parcel_info.claim_by);
-				let today = new Date(Date.now());
+				let claim_by = userParcel.data.parcel_info.claim_by;
+				let today = Date.now();
 
 				let hrs = Math.floor((claim_by - today) / 3600000);
 				let days = Math.floor(hrs / 24);
 
 				// Past claiming deadline already
 				if (hrs < 0) {
-					isClaimPeriodFinished = true;
 					days *= -1;
 					hrs *= -1;
 				}
 
 				return days;
+			}
+		}),
+		isClaimPeriodFinished = $derived.by(() => {
+			if (userParcel.data != undefined) {
+				let claim_by = new Date(userParcel.data.parcel_info.claim_by);
+				let today = new Date(Date.now());
+
+				let hrs = Math.floor((claim_by - today) / 3600000);
+
+				if (hrs < 0) {
+					return true;
+				}
+
+				else return false;
 			}
 		});
 
