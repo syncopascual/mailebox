@@ -18,12 +18,13 @@
 
 	const notinUseMailbox = $derived(mailboxes.data?.filter((p) => p.status === 'Available') ?? []);
 	const InUseMailbox = $derived(mailboxes.data?.filter((p) => p.status === 'Unavailable') ?? []);
-	const inUseParcel = $derived(parcels.data?.filter((p) => p.status === 'In Locker') ?? []);
+	const inUseParcel = $derived(parcels.data?.filter((p) => p.status === 'In Locker' || p.status === 'Sorting') ?? []);
 	const FailedAttempts = $derived(logs.data?.filter((p) => p.is_successful === false) ?? []);
 
 	const expiredParcel = $derived(
-		inUseParcel.filter((p) => p.claim_by < p.in_locker_by)
+		inUseParcel.filter((p) => p.claim_by < Date.now())
 	);
+	console.log(expiredParcel, "EXPIRED PARCEL COUNTS");
 	
 	const validParcel = $derived.by(() => {
 		return inUseParcel.filter((p) => {
@@ -66,7 +67,7 @@
 				{:else if parcels.error || mailboxes.error || logs.error}
 					<p>error</p>
 				{:else}
-					<PieChart percent_avail={notinUseMailbox.length/totalMailboxes * 100} percent_occ={validParcel.length/totalMailboxes * 100} percent_over={expiredParcel.length/totalMailboxes * 100}/>
+					<PieChart percent_avail={notinUseMailbox.length/totalMailboxes * 100} percent_occ={(InUseMailbox.length-expiredParcel.length)/totalMailboxes * 100} percent_over={expiredParcel.length/totalMailboxes * 100}/>
 				{/if}
 			</div>
 			

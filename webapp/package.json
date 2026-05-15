@@ -12,7 +12,8 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:e2e": "playwright test",
-		"test": "npm run test:e2e"
+		"test": "npm run test:e2e",
+		"data:reset": "npx convex import --table parcels dummy_data/parcelData.json --replace && npx convex import --table mailboxes dummy_data/mailboxData.json --replace"
 	},
 	"files": [
 		"dist",
