@@ -19,8 +19,7 @@
 	} = $props();
 
 	// Calculation of Date Difference (for claiming)
-	var isClaimPeriodFinished = $state(false),
-		date_deli = $derived.by(() => {
+	var date_deli = $derived.by(() => {
 			if (delivered_date != "N/A")
 				return new Date(parseInt(delivered_date));
 			else 
@@ -47,12 +46,10 @@
 		}),
 		hrs = $derived.by(() => {
 			if (delivered_date != "N/A" && claim_by != "N/A") {
-				console.log("yipee");
-				let hrs = Math.floor((date_claim - date_deli) / 3600000);
+				let hrs = Math.floor((date_claim - Date.now()) / 3600000);
 				
 				if (hrs < 0) {
 					hrs *= -1;
-					isClaimPeriodFinished = true;
 				}
 
 				return hrs;
@@ -62,42 +59,21 @@
 		}),
 		days = $derived.by(() => {
 			if (delivered_date != "N/A" && claim_by != "N/A") {
-				let days = Math.floor(hrs/24);
-				if (isClaimPeriodFinished) 
-					days *= -1;
-				return days;
+				return Math.floor(hrs/24);;
 			}
 
 			return "N/A";
+		}),
+		isClaimPeriodFinished = $derived.by(() => {
+			if (delivered_date != "N/A" && claim_by != "N/A") {
+				let hrs = Math.floor((date_claim - Date.now()) / 3600000);
+				
+				if (hrs < 0) {
+					return true;
+				}
+			}
+			return false;
 		});
-
-	// if (delivered_date != 'N/A' && claim_by != 'N/A') {
-	// 	date_deli = new Date(parseInt(delivered_date));
-	// 	date_claim = new Date(parseInt(claim_by));
-
-	// 	hrs = Math.floor((date_claim - date_deli) / 3600000);
-	// 	days = Math.floor(hrs / 24);
-
-	// 	console.log(days);
-
-	// 	// Not yet past claiming deadline
-	// 	if (hrs > 0) {
-	// 		isClaimPeriodFinished = false;
-	// 	}
-
-	// 	// Past claiming deadline already
-	// 	else {
-	// 		isClaimPeriodFinished = true;
-	// 		days *= -1;
-	// 		hrs *= -1;
-	// 	}
-
-	// 	output_deli = date_deli.toUTCString();
-	// 	output_claim = date_claim.toUTCString();
-	// } else {
-	// 	output_deli = delivered_date;
-	// 	output_claim = claim_by;
-	// }
 
 	// console.log(`Past Deadline? ${isClaimPeriodFinished}, days: ${days}, hours: ${hrs}`);
 
@@ -112,7 +88,7 @@
 	</div>
 
 	<div class="w-1/5 content-center text-center">
-		{recipient_uid}
+		{recipient_uid ? recipient_uid : "N/A"}
 	</div>
 
 	<div class="w-1/5 content-center text-center">
@@ -146,19 +122,19 @@
 
 		<h1 class="text-mlb-orange mb-6 text-3xl font-bold">Unlock Locker {locker_num}?</h1>
 
-		<div class="bg-mlb-orange/10 my-4 rounded-lg p-4 text-base">
+		<div class="flex place-content-center flex-col bg-mlb-orange/10 my-4 rounded-lg p-4 text-base">
 			<!-- <div class="font-bold text-2xl mb-2">Note:</div> -->
 			{#if isClaimPeriodFinished && status == 'Unavailable'}
 				<div>
 					Parcel has been <span class="text-mlb-red font-bold underline">unclaimed</span> for
 				</div>
-				<div class="text-mlb-red my-2 text-xl font-bold">
-					{days.toString()} days, {hrs.toString()} hours
+				<div class="text-mlb-red mt-2 text-2xl font-bold">
+					{days.toString()} days
 				</div>
 			{:else if !isClaimPeriodFinished && status == 'Unavailable'}
 				<div>Recipient <span class="font-semibold underline">{recipient_uid}</span> has</div>
-				<div class="text-mlb-orange my-2 text-xl font-bold">
-					{days.toString()} days, {hrs.toString()} hours
+				<div class="text-mlb-orange mt-2 text-2xl font-bold">
+					{days.toString()} days
 				</div>
 				<div>to claim their parcel</div>
 			{:else}
